@@ -189,8 +189,8 @@ CREATE TABLE IF NOT EXISTS stores (
     store_name VARCHAR NOT NULL,
     store_segment VARCHAR NOT NULL,
     store_plan_price DECIMAL NOT NULL,
-    store_latitude DECIMAL NOT NULL,
-    store_longitude DECIMAL NOT NULL
+    store_latitude DECIMAL,
+    store_longitude DECIMAL
 );
 
 --?> Also create 'STORES_RAW_' table for raw data ingestion
