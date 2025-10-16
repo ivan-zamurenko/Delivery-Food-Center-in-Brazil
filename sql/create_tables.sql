@@ -49,6 +49,11 @@ CREATE TABLE IF NOT EXISTS drivers (
     driver_type VARCHAR NOT NULL
 );
 
+--?> During FK creation, we found that some driver_id in deliveries do not exist in drivers table.
+--?> So we will create a dummy drivers with 'Unknown' modal and type for those driver_id.
+Insert Into drivers (driver_id, driver_modal, driver_type)
+VALUES (-1, 'Unknown', 'Unknown')
+
 --?> Also create 'DRIVERS_RAW_' table for raw data ingestion
 Drop Table if EXISTS drivers_raw_
 
@@ -57,6 +62,7 @@ CREATE TABLE IF NOT EXISTS drivers_raw_ (
     driver_modal text,
     driver_type text
 );
+
 
 
 --!> Create 'ORDERS' table
