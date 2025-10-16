@@ -327,3 +327,17 @@ From cleaned_data
 
 --?> 2. Verify the insertion
 Select * From stores LIMIT 10;
+
+
+--!> During the FK creation, I encounter an error related to existing data violating the FK constraint.
+--?> To resolve this, I will identify and remove the problematic records from the 'ORDER' table.
+--?> 1. Identify problematic records in 'ORDERS' table where payment_order_id or delivery_order_id do not match order_id
+SELECT *
+FROM orders
+WHERE delivery_order_id IS DISTINCT FROM order_id
+    OR payment_order_id IS DISTINCT FROM order_id;
+
+--?> 2. Delete problematic records from 'ORDERS' table
+Alter Table orders
+Drop Column delivery_order_id,
+Drop Column payment_order_id;
