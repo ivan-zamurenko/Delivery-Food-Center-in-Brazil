@@ -108,3 +108,42 @@ From success_deliveries sd
 Join drivers d On d.driver_id = sd.driver_id
 Group By d.driver_id, d.driver_modal, d.driver_type
 Order By average_delivery_time_minutes ASC;
+
+
+--!> Q7: What is the total number of orders and total revenue for each store?
+Select 
+    store_id
+    , count(order_id) as total_orders
+    , sum(p.payment_amount) as total_revenue
+From orders
+Join payments p On p.payment_order_id = orders.order_id
+Group By store_id
+Order By sum(p.payment_amount) DESC;
+
+
+--!> Q8: Which payment method has the highest average payment amount?
+with avg_payments as (
+    Select 
+        payment_method,
+        round(avg(payment_amount), 2) as average_payment_amount,
+        row_number() over (Order By avg(payment_amount) DESC) as rank
+    From payments
+    Group By payment_method
+)
+Select *
+From avg_payments
+Where rank = 1;
+
+
+--!> Q9: What is the distribution of orders across different sales channels?
+Select 
+    o.channel_id,
+    c.channel_name,
+    count(o.order_id) as total_orders,
+    round(count(o.order_id) / sum(count(o.order_id)) over() * 100, 5) as percentage_of_total_orders
+From orders o
+Join channels c On c.channel_id = o.channel_id
+Group By 
+    o.channel_id,
+    c.channel_name
+Order By count(o.order_id) DESC;

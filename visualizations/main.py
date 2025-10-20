@@ -1,18 +1,25 @@
 from db_connection import get_engine
-from queries import fetch_orders
-from visualization import plot_orders
+from queries import fetch_orders, fetch_order_channel_distribution
+from visualization import horizontal_bar_chart_order_channels_distribution
 
 
-#! Database credentials
-db_config = {
-    "user": "postgres",
-    "password": "21091997",
-    "host": "localhost",
-    "port": "5432",
-    "database": "food-delivery-brazil",
-}
+def main():
+    #! Database credentials
+    db_config = {
+        "user": "postgres",
+        "password": "21091997",
+        "host": "localhost",
+        "port": "5432",
+        "database": "food-delivery-brazil",
+    }
+
+    # ? Set up database engine
+    engine = get_engine(db_config)
+
+    # ? Fetch ORDERS - CHANNELS distribution data
+    orders_channels_distribution_data = fetch_order_channel_distribution(engine)
+    horizontal_bar_chart_order_channels_distribution(orders_channels_distribution_data)
 
 
-engine = get_engine(db_config)
-orders_df = fetch_orders(engine)
-plot_orders(orders_df)
+if __name__ == "__main__":
+    main()

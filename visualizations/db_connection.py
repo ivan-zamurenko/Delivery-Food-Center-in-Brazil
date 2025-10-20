@@ -7,4 +7,4 @@ def get_engine(db_config):
         f"postgresql://{db_config['user']}:{db_config['password']}@"
         f"{db_config['host']}:{db_config['port']}/{db_config['database']}"
     )
-    return create_engine(connection_string)
+    return create_engine(connection_string, echo=True)
