@@ -1,10 +1,12 @@
 import os
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
+from pathlib import Path
 
 
 def get_engine():
-    load_dotenv("config.example.env")
+    env_path = Path(__file__).parent.parent / "config.env"
+    load_dotenv(env_path)
 
     #! Database credentials
     db_config = {

@@ -102,13 +102,3 @@ def test_channels_missing_values():
     # ? Assertions for missing values
     assert missing["channel_id"] == 0
     assert missing["channel_name"] == 0
-
-
-if __name__ == "__main__":
-    test_orders_missing_values()
-    test_payments_missing_values()
-    test_deliveries_missing_values()
-    test_drivers_missing_values()
-    test_stores_missing_values()
-    test_hubs_missing_values()
-    test_channels_missing_values()
