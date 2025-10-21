@@ -1,20 +1,17 @@
+import sys
+import os
+
+#! Adjust the system path to include the parent directory
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from analysis.db_connection import get_engine
 from analysis.queries import fetch_orders, fetch_order_channel_distribution
 from analysis.visualization import horizontal_bar_chart_order_channels_distribution
 
 
 def main():
-    #! Database credentials
-    db_config = {
-        "user": "postgres",
-        "password": "21091997",
-        "host": "localhost",
-        "port": "5432",
-        "database": "food-delivery-brazil",
-    }
-
     # ? Set up database engine
-    engine = get_engine(db_config)
+    engine = get_engine()
 
     # ? Fetch ORDERS - CHANNELS distribution data
     orders_channels_distribution_data = fetch_order_channel_distribution(engine)
