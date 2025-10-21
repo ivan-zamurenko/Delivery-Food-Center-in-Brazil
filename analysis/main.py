@@ -1,6 +1,6 @@
-from db_connection import get_engine
-from queries import fetch_orders, fetch_order_channel_distribution
-from visualization import horizontal_bar_chart_order_channels_distribution
+from analysis.db_connection import get_engine
+from analysis.queries import fetch_orders, fetch_order_channel_distribution
+from analysis.visualization import horizontal_bar_chart_order_channels_distribution
 
 
 def main():
