@@ -19,4 +19,4 @@ jobs:
           source $(conda info --base)/etc/profile.d/conda.sh
           conda activate delivery-food-center
           export PYTHONPATH=$PYTHONPATH:$(pwd)
-          pytest -q
+          pytest tests -q
