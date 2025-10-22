@@ -1,0 +1,15 @@
+name: delivery-food-center
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy=1.26.4
+  - pandas=2.2.2
+  - matplotlib
+  - sqlalchemy
+  - psycopg2
+  - pytest
+  - python-dotenv
+  - pip
+  - pip:
+      - psycopg2-binary
