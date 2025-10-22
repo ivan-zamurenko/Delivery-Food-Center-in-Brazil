@@ -147,3 +147,16 @@ Group By
     o.channel_id,
     c.channel_name
 Order By count(o.order_id) DESC;
+
+
+--!> Task A: Identify the most profitable channels + payment methods
+Select 
+        o.channel_id,
+        p.payment_method,
+        count(*) as payments_count,
+        sum(p.payment_amount - p.payment_fee) as total_revenue
+From orders o
+Join payments p On p.payment_order_id = o.order_id
+Group By o.channel_id, p.payment_method
+Order By sum(p.payment_amount - p.payment_fee) DESC
+
