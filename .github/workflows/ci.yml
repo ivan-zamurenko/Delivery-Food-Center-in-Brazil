@@ -16,5 +16,7 @@ jobs:
           conda env update -f environment.yml
       - name: Run tests
         run: |
-          export PYTHONPATH=$PYTHONPATH:$(pwd)
-          pytest -q
+        source $(conda info --base)/etc/profile.d/conda.sh
+        conda activate delivery-food-center
+        export PYTHONPATH=$PYTHONPATH:$(pwd)
+        pytest -q
