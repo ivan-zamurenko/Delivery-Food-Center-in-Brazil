@@ -1,29 +1,30 @@
-# Delivery-Food-Center-in-Brazil 🇧🇷 (⚙️ under maintenance)
+# 🚚 Delivery Food Center in Brazil 🇧🇷
 
-This project is an analysis and visualization pipeline for a food delivery dataset (Brazil). The repository contains raw CSVs, SQL schema & queries, and Python plotting utilities.
+Welcome to my data engineering & analytics portfolio project!  
+This repository showcases my work on a real-world food delivery platform in Brazil, focusing on data analysis, business insights, and reproducible workflows.
 
-Quick start
-1) Create virtualenv and install dependencies:
+## ✨ What’s Inside?
+- 📦 Clean project structure for professional data science
+- 🐍 Python scripts for profitability & delivery time optimization
+- 🗃️ SQL queries for business intelligence tasks
+- 📊 Pandas-powered analysis & visualizations
+- ✅ Automated tests & CI for reliability
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements-pinned.txt
-```
+## 🚀 Current Focus
+- Task A: Channel & Payment Mix Profitability
+- Task B: Delivery Time Optimization (Driver Analysis)
+- More advanced analytics coming soon!
 
-2) Run the example script:
+## 🛠️ Technologies
+- Python (pandas, SQLAlchemy, matplotlib)
+- PostgreSQL & SQL
+- GitHub Actions CI
+- Conda for environment management
 
-```bash
-python scripts/run_task_1_missing_values.py
-```
+## 📈 Results
+All results and scripts are reproducible and ready for your own analysis or extension!
 
-Project structure
-- `data/` — raw CSVs
-- `sql/` — schema and analytic SQL
-- `analysis/` — primary analysis package (preferred, new name)
-- `visualizations/` — legacy compatibility package (imports `analysis`)
-- `notebooks/` — interactive analysis
-- `scripts/` — reproducible scripts
-- `results/` — generated outputs (ignored by git)
+---
 
-See `PROJECT_STRUCTURE.md` for more details.
+> 💡 **Actively maintained & open for collaboration.**  
+> Check out the `tasks` file for practice exercises and professional challenges!
