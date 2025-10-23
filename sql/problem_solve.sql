@@ -160,3 +160,27 @@ Join payments p On p.payment_order_id = o.order_id
 Group By o.channel_id, p.payment_method
 Order By sum(p.payment_amount - p.payment_fee) DESC
 
+
+--!> Task B: Delivery Time Optimization (Driver Analysis)
+With delivered_orders as (
+    Select 
+        o.order_id,
+        o.order_moment_delivering,
+        o.order_moment_delivered,
+        d.driver_id,
+        d.delivery_status
+    From orders o
+    Join deliveries d On d.delivery_order_id = o.order_id
+    Where 
+        upper(d.delivery_status) = 'DELIVERED'
+        and o.order_moment_delivering IS NOT NULL
+        and o.order_moment_delivered IS NOT NULL
+)
+Select
+    d.driver_modal,
+    count(*) as total_orders,
+    round(avg(extract(epoch from (del.order_moment_delivered - del.order_moment_delivering)) / 60), 2) as average_delivery_time__minutes
+From delivered_orders del
+Join drivers d On d.driver_id = del.driver_id
+Group By d.driver_modal
+Order By average_delivery_time__minutes ASC;

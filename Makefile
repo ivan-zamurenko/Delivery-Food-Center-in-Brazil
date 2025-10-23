@@ -1,5 +1,5 @@
 install:
-	python -m pip install -r requirements-pinned.txt
+	conda env update -f environment.yml
 
 test:
 	PYTHONPATH=. pytest -q
