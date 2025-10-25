@@ -5,7 +5,10 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from scripts import run_profitability, run_delivery_time_optimization
-from visualization import channel_profitability_heatmap
+from visualization import (
+    channel_profitability_heatmap,
+    plot_average_delivery_time_by_driver_modal,
+)
 
 
 def main():
@@ -15,6 +18,7 @@ def main():
 
     #! Task B: Delivery Time Optimization
     delivery_time_df = run_delivery_time_optimization.get_delivery_time_data()
+    plot_average_delivery_time_by_driver_modal(delivery_time_df)
 
 
 if __name__ == "__main__":
