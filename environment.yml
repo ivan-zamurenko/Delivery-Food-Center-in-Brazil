@@ -10,6 +10,7 @@ dependencies:
   - psycopg2
   - pytest
   - python-dotenv
+  - seaborn
   - pip
   - pip:
       - psycopg2-binary
