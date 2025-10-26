@@ -1,0 +1,40 @@
+======================================================================
+Data Cleaning Report - Task D
+======================================================================
+Generated on: 2025-10-26 22:34:46
+
+ORDERS
+----------------------------------------
+   initial_rows: 368999
+   final_rows: 367923
+   duplicates_removed: 0
+   invalid_times_removed: 312
+   invalid_order_amounts_removed: 764
+   nulls_before: 1180310
+   nulls_after: 1180310
+
+PAYMENTS
+----------------------------------------
+   initial_rows: 400834
+   final_rows: 400709
+   duplicates_removed: 0
+   invalid_payment_amounts_removed: 125
+   nulls_before: 175
+   nulls_after: 175
+
+DELIVERIES
+----------------------------------------
+   initial_rows: 378843
+   final_rows: 378843
+   duplicates_removed: 0
+   nulls_before: 73
+   nulls_after: 73
+   null_drivers_replaced: 15886
+
+======================================================================
+Cleaning Summary:
+======================================================================
+Total rows before cleaning: 1148676
+Total rows after cleaning: 1147475
+Total rows removed: 1201
+Data quality improvement: 99.90% retained
