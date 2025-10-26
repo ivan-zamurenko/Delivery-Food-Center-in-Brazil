@@ -279,7 +279,7 @@ Each completed task includes a comprehensive README with:
 ## 📧 Contact & Collaboration
 
 **Ivan Zamurenko**  
-💼 [LinkedIn Profile]  
+💼 [LinkedIn Profile](https://www.linkedin.com/in/ivan-zamurenko/)  
 🐙 [GitHub Profile](https://github.com/ivan-zamurenko)
 
 > 💡 **Open for collaboration, feedback, and job opportunities in Data Engineering & Analytics!**
