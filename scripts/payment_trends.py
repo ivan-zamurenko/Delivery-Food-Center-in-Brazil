@@ -214,9 +214,255 @@ class PaymentTrendsAnalyzer:
 
         # Flag anomalies where |z-score| > 2.5
         self.monthly_shares["is_anomaly"] = self.monthly_shares["zscore"].abs() > 2.5
-        print(self.monthly_shares.head())
 
         logger.info("✓ Anomaly detection complete")
+
+    # ========================================================================
+    # STEP 6: VISUALIZE PAYMENT METHOD TRENDS OVER TIME
+    # ========================================================================
+    # TODO: Create a line chart showing market share % over time for top 5 payment methods
+    # TODO: Mark anomalies with red 'X' markers on the line chart
+    # TODO: Use figsize=(14, 8) for readability
+    # TODO: Add title: "Payment Method Market Share Trends Over Time"
+    # TODO: Add labels for x-axis (Month) and y-axis (Market Share %)
+    # TODO: Show legend with payment method names
+    # TODO: Save the plot to results/task-e/payment_trends_line_chart.png
+    def visualize_payment_trends(self):
+        """Visualize payment method trends over time."""
+        logger.info(" -> Visualizing payment method trends over time...")
+
+        # Identify top 5 payment methods by total transactions
+        top_n = 5
+        top_payment_methods = (
+            self.monthly_shares.groupby("payment_method")["total_transactions"]
+            .sum()
+            .nlargest(top_n)
+            .index
+        )
+
+        # Keep only rows where payment_method is in top_5_methods
+        top_n_data = self.monthly_shares[
+            self.monthly_shares["payment_method"].isin(top_payment_methods)
+        ]
+
+        # Define anomalies FIRST (from top_n_data)
+        anomalies = top_n_data[top_n_data["is_anomaly"] == True]
+
+        # Create figure with 2 subplots (one above the other)
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10), sharex=True)
+
+        # Top plot: High-share methods (ONLINE, VOUCHER)
+        high_share_methods = ["ONLINE", "VOUCHER"]
+        for method in high_share_methods:
+            method_data = top_n_data[top_n_data["payment_method"] == method]
+            ax1.plot(
+                method_data["year_month"].astype(str),
+                method_data["share_pct"],
+                marker="o",
+                label=method,
+            )
+        ax1.set_ylabel("Market Share (%)")
+        ax1.set_title("High Share Payment Methods (ONLINE, VOUCHER)")
+        ax1.legend()
+        ax1.grid(True, alpha=0.3, linestyle="--")
+
+        # Bottom plot: Low-share methods (DEBIT, MEAL_BENEFIT, STORE_DIRECT_PAYMENT)
+        low_share_methods = ["DEBIT", "MEAL_BENEFIT", "STORE_DIRECT_PAYMENT"]
+        for method in low_share_methods:
+            method_data = top_n_data[top_n_data["payment_method"] == method]
+            ax2.plot(
+                method_data["year_month"].astype(str),
+                method_data["share_pct"],
+                marker="o",
+                label=method,
+            )
+        ax2.set_ylabel("Market Share (%)")
+        ax2.set_xlabel("Month")
+        ax2.set_title(
+            "Low Share Payment Methods (DEBIT, MEAL_BENEFIT, STORE_DIRECT_PAYMENT)"
+        )
+        ax2.legend()
+        ax2.grid(True, alpha=0.3, linestyle="--")
+
+        # Add anomalies to both plots
+        anomalies_high = anomalies[anomalies["payment_method"].isin(high_share_methods)]
+        anomalies_low = anomalies[anomalies["payment_method"].isin(low_share_methods)]
+
+        ax1.scatter(
+            anomalies_high["year_month"].astype(str),
+            anomalies_high["share_pct"],
+            color="red",
+            marker="x",
+            s=200,
+            label="Anomaly",
+        )
+        ax2.scatter(
+            anomalies_low["year_month"].astype(str),
+            anomalies_low["share_pct"],
+            color="red",
+            marker="x",
+            s=200,
+            label="Anomaly",
+        )
+
+        plt.xticks(rotation=45, ha="right")  # Rotate x-axis labels for readability
+        plt.tight_layout()
+
+        # Save the plot
+        plt.savefig(
+            f"{self.output_dir}/payment_trends_line_chart.png",
+            dpi=300,
+            bbox_inches="tight",
+        )
+        plt.show()
+
+        logger.info("✓ Payment method trends visualization complete")
+
+    # ========================================================================
+    # STEP 7: CREATE STACKED AREA CHART FOR ALL PAYMENT METHODS
+    # ========================================================================
+    # TODO: Pivot the monthly_shares DataFrame so:
+    #       - Index = year_month (time on x-axis)
+    #       - Columns = payment_method (different payment types)
+    #       - Values = share_pct (market share percentage)
+    # TODO: Fill missing values with 0 (months where a payment method wasn't used)
+    # TODO: Create a stacked area chart using .plot(kind='area', stacked=True)
+    # TODO: Use figsize=(14, 8) and alpha=0.7 for transparency
+    # TODO: Add title: "Payment Method Market Share Evolution (Stacked)"
+    # TODO: Save to results/task-e/payment_trends_stacked_area.png
+    # BUSINESS INSIGHT: This shows how payment method mix changed over time!
+    def visualize_stacked_area_chart(self):
+        """Create stacked area chart for all payment methods."""
+        logger.info(" -> Creating stacked area chart for all payment methods...")
+
+        # Pivot the DataFrame
+        pivot_df = self.monthly_shares.pivot(
+            index="year_month", columns="payment_method", values="share_pct"
+        )
+
+        # Group minor payment methods into "Other"
+        top_n = 5
+        top_methods = pivot_df.sum().nlargest(top_n).index
+        pivot_df["Other"] = pivot_df.drop(columns=top_methods).sum(axis=1)
+        pivot_df_simplified = pivot_df[list(top_methods) + ["Other"]]
+
+        # Fill missing values with 0
+        pivot_df_simplified = pivot_df_simplified.fillna(0)
+
+        # Create stacked area chart
+        ax = pivot_df_simplified.plot(
+            kind="area", stacked=True, figsize=(14, 8), alpha=0.7
+        )
+        ax.set_title("Payment Method Market Share Evolution (Stacked)")
+        ax.set_xlabel("Month")
+        ax.set_ylabel("Payment Method Market Share (%)")
+
+        plt.xticks(rotation=45, ha="right")
+        plt.tight_layout()
+
+        # Save the plot
+        plt.savefig(
+            f"{self.output_dir}/payment_trends_stacked_area.png",
+            dpi=300,
+            bbox_inches="tight",
+        )
+        plt.show()
+
+        logger.info("✓ Stacked area chart created")
+
+    # ========================================================================
+    # STEP 8: ANALYZE PAYMENT AMOUNT DISTRIBUTION BY METHOD
+    # ========================================================================
+    # TODO: Filter to only PAID payments
+    # TODO: For top 5 payment methods (by transaction count), create a boxplot
+    # TODO: X-axis: payment_method, Y-axis: payment_amount
+    # TODO: Use figsize=(12, 8)
+    # TODO: Add title: "Payment Amount Distribution by Method"
+    # TODO: Rotate x-axis labels 45 degrees for readability
+    # TODO: Save to results/task-e/payment_amount_boxplot.png
+    # BUSINESS QUESTION: Which payment methods have higher average order values?
+    # HINT: Boxplots show median, quartiles, and outliers - great for comparing distributions!
+    def analyze_payment_amount_distribution(self):
+        """Analyze payment amount distribution by method."""
+        logger.info(" -> Analyzing payment amount distribution by method...")
+
+        # Filter to only PAID payments
+        paid_df = self.merged_df[self.merged_df["payment_status"] == "PAID"].copy()
+
+        # Identify top 5 payment methods by transaction count
+        top_n = 5
+        top_payment_methods = (
+            paid_df["payment_method"].value_counts().nlargest(top_n).index
+        )
+
+        # Filter data to only top payment methods
+        top_data = paid_df[paid_df["payment_method"].isin(top_payment_methods)].copy()
+        # Convert payment_amount to float
+        top_data["payment_amount"] = top_data["payment_amount"].astype(float)
+
+        # Remove extreme outliers (keep 99% of data for better visualization)
+        percentile_99 = top_data["payment_amount"].quantile(0.99)
+        top_data_filtered = top_data[top_data["payment_amount"] <= percentile_99]
+        logger.info(f"   • Filtered to 99th percentile: ${percentile_99:.2f}")
+
+        # Create boxplot using filtered data
+        fig, (ay1, ay2, ay3) = plt.subplots(1, 3, figsize=(18, 6))
+
+        # Prepare data for boxplot
+        high_share_methods = ["ONLINE", "DEBIT"]
+        middle_share_methods = ["VOUCHER"]
+        low_share_methods = ["MEAL_BENEFIT", "STORE_DIRECT_PAYMENT"]
+
+        # Left plot: High-share methods
+        data_to_plot_high = [
+            top_data_filtered[top_data_filtered["payment_method"] == method][
+                "payment_amount"
+            ]
+            for method in high_share_methods
+        ]
+        ay1.boxplot(data_to_plot_high, labels=high_share_methods)
+        ay1.set_xlabel("Payment Method")
+        ay1.set_ylabel("Payment Amount ($)")
+        ay1.set_title("Payment Amount Distribution by Method - High Share Methods")
+        ay1.grid(True, alpha=0.3, linestyle="--")
+
+        data_to_plot_medium = [
+            top_data_filtered[top_data_filtered["payment_method"] == method][
+                "payment_amount"
+            ]
+            for method in middle_share_methods
+        ]
+        ay2.boxplot(data_to_plot_medium, labels=middle_share_methods, showfliers=False)
+        ay2.set_xlabel("Payment Method")
+        ay2.set_ylabel("Payment Amount ($)")
+        ay2.set_title("Payment Amount Distribution by Method - Medium Share Methods")
+        ay2.grid(True, alpha=0.3, linestyle="--")
+
+        # Right plot: Low-share methods
+        data_to_plot_low = [
+            top_data_filtered[top_data_filtered["payment_method"] == method][
+                "payment_amount"
+            ]
+            for method in low_share_methods
+        ]
+        ay3.boxplot(data_to_plot_low, labels=low_share_methods)
+        ay3.set_xlabel("Payment Method")
+        ay3.set_ylabel("Payment Amount ($)")
+        ay3.set_title("Payment Amount Distribution by Method - Low Share Methods")
+        ay3.grid(True, alpha=0.3, linestyle="--")
+        ay3.tick_params(axis="x", rotation=45)
+
+        plt.tight_layout()
+
+        # Save the plot
+        plt.savefig(
+            f"{self.output_dir}/payment_amount_boxplot.png",
+            dpi=300,
+            bbox_inches="tight",
+        )
+        plt.show()
+
+        logger.info("✓ Payment amount distribution analysis complete")
 
     def run(self):
         """Main method to run the payment trends analysis."""
@@ -226,45 +472,10 @@ class PaymentTrendsAnalyzer:
         self.extract_time_components()
         self.calculate_monthly_payment_shares()
         self.calculate_anomalies()
+        self.visualize_payment_trends()
+        self.visualize_stacked_area_chart()
+        self.analyze_payment_amount_distribution()
 
-
-# ========================================================================
-# STEP 6: VISUALIZE PAYMENT METHOD TRENDS OVER TIME
-# ========================================================================
-# TODO: Create a line chart showing market share % over time for top 5 payment methods
-# TODO: Mark anomalies with red 'X' markers on the line chart
-# TODO: Use figsize=(14, 8) for readability
-# TODO: Add title: "Payment Method Market Share Trends Over Time"
-# TODO: Add labels for x-axis (Month) and y-axis (Market Share %)
-# TODO: Show legend with payment method names
-# TODO: Save the plot to results/task-e/payment_trends_line_chart.png
-
-# ========================================================================
-# STEP 7: CREATE STACKED AREA CHART FOR ALL PAYMENT METHODS
-# ========================================================================
-# TODO: Pivot the monthly_shares DataFrame so:
-#       - Index = year_month (time on x-axis)
-#       - Columns = payment_method (different payment types)
-#       - Values = share_pct (market share percentage)
-# TODO: Fill missing values with 0 (months where a payment method wasn't used)
-# TODO: Create a stacked area chart using .plot(kind='area', stacked=True)
-# TODO: Use figsize=(14, 8) and alpha=0.7 for transparency
-# TODO: Add title: "Payment Method Market Share Evolution (Stacked)"
-# TODO: Save to results/task-e/payment_trends_stacked_area.png
-# BUSINESS INSIGHT: This shows how payment method mix changed over time!
-
-# ========================================================================
-# STEP 8: ANALYZE PAYMENT AMOUNT DISTRIBUTION BY METHOD
-# ========================================================================
-# TODO: Filter to only PAID payments
-# TODO: For top 5 payment methods (by transaction count), create a boxplot
-# TODO: X-axis: payment_method, Y-axis: payment_amount
-# TODO: Use figsize=(12, 8)
-# TODO: Add title: "Payment Amount Distribution by Method"
-# TODO: Rotate x-axis labels 45 degrees for readability
-# TODO: Save to results/task-e/payment_amount_boxplot.png
-# BUSINESS QUESTION: Which payment methods have higher average order values?
-# HINT: Boxplots show median, quartiles, and outliers - great for comparing distributions!
 
 # ========================================================================
 # STEP 9: SAVE RESULTS TO CSV FILES
