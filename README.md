@@ -93,6 +93,21 @@ All results and scripts are reproducible and ready for your own analysis or exte
 
 ---
 
+### [💳 Task E: Payment Methods Trend Analysis & Anomaly Detection](results/task-e/README.md)
+**Goal:** Analyze payment method trends over time to detect market shifts, anomalies, and seasonal patterns
+
+**Key Results:**
+- Analyzed 400K+ transactions across 10+ payment methods over 4 months (Jan-Apr 2021)
+- Detected 8 statistical anomalies using z-score analysis (2.5σ threshold)
+- Discovered strong negative correlation between ONLINE and CREDIT methods (-0.89)
+- Identified seasonal patterns in payment preferences across calendar months
+
+**Skills:** Time series analysis, anomaly detection, correlation analysis, seasonal decomposition, statistical visualization
+
+**Deliverables:** [Python Script](scripts/payment_trends.py) • [5 Visualizations](results/task-e/) • [CSV Results](results/task-e/) • [Business Summary](results/task-e/payment_trends_summary.txt)
+
+---
+
 ## 🛠️ Technical Stack
 
 **Languages & Libraries:**
@@ -123,7 +138,8 @@ Delivery-Food-Center-in-Brazil/
 ├── scripts/                    # Production Python scripts
 │   ├── run_profitability.py    # Task A: Revenue analysis
 │   ├── run_delivery_time_optimization.py  # Task B: Driver performance
-│   └── clean_data.py           # Task D: Data cleaning pipeline
+│   ├── clean_data.py           # Task D: Data cleaning pipeline
+│   └── payment_trends.py       # Task E: Payment trends analysis
 ├── analysis/                   # Reusable analysis modules
 │   ├── queries.py              # Database query functions
 │   ├── db_connection.py        # PostgreSQL connection handling
