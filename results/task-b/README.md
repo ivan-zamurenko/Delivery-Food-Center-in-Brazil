@@ -1,6 +1,7 @@
 # Task B — Delivery Time Optimization (Driver Analysis)
 
 **Completed:** October 26, 2025  
+**Author:** Ivan Zamurenko  
 **Goal:** Quantify delivery time differences by driver type to identify operational improvements and optimize delivery performance.
 
 ---
@@ -622,13 +623,13 @@ results/task-b/README.md                   # This comprehensive document
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Author & Status
 
-**Task Completion Date:** October 26, 2025
-
+**Author:** Ivan Zamurenko  
+**Completion Date:** October 26, 2025  
 **Status:** ✅ Complete and Production-Ready
 
-**Next Steps:**
+### Next Steps:
 - Run ANOVA/Kruskal-Wallis test for statistical significance
 - Build regression model to control for confounding variables
 - Create real-time dashboard for operations team

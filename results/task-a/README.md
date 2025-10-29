@@ -1,6 +1,7 @@
 # Task A — Channel & Payment Mix Profitability Analysis
 
 **Completed:** October 26, 2025  
+**Author:** Ivan Zamurenko  
 **Goal:** Identify the most profitable sales channels and payment methods to optimize business strategy and revenue.
 
 ---
@@ -472,13 +473,13 @@ results/task-a/README.md               # This comprehensive document
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Author & Status
 
-**Task Completion Date:** October 26, 2025
-
+**Author:** Ivan Zamurenko  
+**Completion Date:** October 26, 2025  
 **Status:** ✅ Complete and Production-Ready
 
-**Next Steps:** 
+### Next Steps:
 - Create interactive Tableau/PowerBI dashboard
 - Add time-series analysis for trend detection
 - Build predictive model for channel revenue forecasting

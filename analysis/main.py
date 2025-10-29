@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from scripts import run_profitability, run_delivery_time_optimization
 from scripts.clean_data import DataCleaner
+from scripts.payment_trends import PaymentTrendsAnalyzer
 from visualization import (
     channel_profitability_heatmap,
     plot_average_delivery_time_by_driver_modal,
@@ -24,6 +25,10 @@ def main():
     #! Task D: Data Quality & Pipeline (Data Engineering)
     data_cleaner = DataCleaner()
     data_cleaner.run()
+
+    #! Task E — Payment Methods Trend & Churn (Time Series)
+    payment_trends_analyzer = PaymentTrendsAnalyzer()
+    payment_trends_analyzer.run()
 
 
 if __name__ == "__main__":

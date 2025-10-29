@@ -1,24 +1,37 @@
-# Task E — Payment Methods Trend & Churn (Time Series)
-# - Goal: Detect trends and anomalies in payment methods over time; propose seasonal/marketing interpretations.
-# - Skills: Time series aggregation, anomaly detection, visual storytelling.
-# - Deliverables:
-#   - Script: `scripts/payment_trends.py` that outputs monthly shares and anomalies.
-#   - Notebook: stacked area charts, anomaly annotations, linked SQL queries.
+"""
+Task E — Payment Methods Trend Analysis & Anomaly Detection
 
+Business Goal:
+    Analyze payment method trends over time to identify market shifts, anomalies,
+    and seasonal patterns that inform marketing strategy and payment partnerships.
+
+Technical Approach:
+    - Time series aggregation of 400K+ payment transactions
+    - Z-score based anomaly detection (threshold: 2.5 standard deviations)
+    - Statistical visualization (line charts, heatmaps, correlation analysis)
+    - Automated business insights generation
+
+Deliverables:
+    - Monthly payment method market share data (CSV)
+    - Anomaly detection reports with recommendations
+    - 5 publication-quality visualizations
+    - Statistical correlation analysis between payment methods
+
+Author: Ivan Zamurenko
+Date: October 2025
+"""
 
 import sys
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 import logging
 from pathlib import Path
-from datetime import datetime
 
-
-#! Adjust the system path to include the parent directory
+# Adjust system path to include parent directory
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-#! Initialize logging
+# Initialize logging configuration
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
@@ -26,27 +39,59 @@ logger = logging.getLogger(__name__)
 
 
 class PaymentTrendsAnalyzer:
-    """Class to analyze payment method trends and detect anomalies over time."""
+    """
+    Analyzes payment method trends and detects statistical anomalies over time.
+
+    This class implements a complete time series analysis pipeline:
+    1. Data loading and preparation (orders + payments merge)
+    2. Monthly market share calculation
+    3. Z-score based anomaly detection
+    4. Statistical visualizations (5 charts)
+    5. Correlation and seasonal analysis
+
+    Attributes:
+        input_dir (Path): Directory containing cleaned CSV data
+        output_dir (Path): Root directory for analysis outputs
+        output_report_dir (Path): Directory for CSV reports
+        output_plots_dir (Path): Directory for visualizations
+        monthly_shares (DataFrame): Main analysis dataset with market shares
+    """
 
     def __init__(self, input_dir="data/data-cleaned", output_dir="results/task-e"):
-        # Get project root directory)
+        """
+        Initialize analyzer with input/output directory paths.
+
+        Args:
+            input_dir (str): Path to cleaned data directory
+            output_dir (str): Path to results directory
+        """
+        # Get project root directory
         project_root = Path(__file__).parent.parent
 
         self.input_dir = project_root / input_dir
         self.output_dir = project_root / output_dir
+        self.output_report_dir = self.output_dir / "reports"
+        self.output_plots_dir = self.output_dir / "plots"
 
-        # Create output directory if it doesn't exist
+        # Create output directories if they don't exist
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.output_report_dir.mkdir(parents=True, exist_ok=True)
+        self.output_plots_dir.mkdir(parents=True, exist_ok=True)
 
     # ========================================================================
-    # STEP 1: LOAD AND PREPARE DATA
+    # DATA LOADING & PREPARATION
     # ========================================================================
-    # TODO: Load orders_cleaned.csv and payments_cleaned.csv with latin1 encoding
-    # TODO: Check for missing values in payment_fee column
-    # TODO: Fill missing payment_fee values with 0 (business decision: assume no fee if missing)
 
     def load_data(self):
-        """Load cleaned data for orders and payments."""
+        """
+        Load cleaned orders and payments data from CSV files.
+
+        Reads:
+            - orders_cleaned.csv: 367K+ order records
+            - payments_cleaned.csv: 400K+ payment transactions
+
+        Note: Uses latin1 encoding to handle special characters in Brazilian data.
+        """
         logger.info(" -> Loading cleaned data...")
 
         self.orders_df = pd.read_csv(
@@ -59,7 +104,13 @@ class PaymentTrendsAnalyzer:
         logger.info("✓ All files loaded successfully")
 
     def prepare_data(self):
-        """Prepare and clean data for analysis."""
+        """
+        Clean and prepare data for time series analysis.
+
+        Business Logic:
+            - Fills missing payment_fee values with 0 (assume no fee when not recorded)
+            - Logs data quality metrics for transparency
+        """
         logger.info(" -> Preparing data...")
 
         # Check how many missing values exists
@@ -75,18 +126,16 @@ class PaymentTrendsAnalyzer:
 
         logger.info("✓ Data preparation complete")
 
-    # ========================================================================
-    # STEP 2: MERGE ORDERS AND PAYMENTS FOR TIME SERIES ANALYSIS
-    # ========================================================================
-    # TODO: Merge orders and payments DataFrames on order_id and payment_order_id
-    # TODO: Keep only these columns: order_id, order_moment_created, payment_method, payment_amount, payment_status
-    # TODO: Convert order_moment_created to datetime format (use pd.to_datetime with format="mixed")
-    # TODO: Drop rows where order_moment_created is NaN (invalid dates)
-    # HINT: You need the order timestamp to analyze trends over time!
     def merge_orders_payments(self):
-        """Merge orders and payments data for time series analysis."""
+        """
+        Merge orders and payments data for time series analysis.
+
+        Joins on order_id to combine transaction details with payment information.
+        Converts timestamps to datetime format for temporal analysis.
+        """
         logger.info(" -> Merging orders and payments data...")
 
+        # Join orders and payments, keeping only essential columns for analysis
         self.merged_df = self.orders_df.merge(
             self.payments_df, left_on="order_id", right_on="payment_order_id"
         )[
@@ -99,27 +148,22 @@ class PaymentTrendsAnalyzer:
             ]
         ]
 
-        # Convert order_moment_created to datetime
+        # Convert timestamps to datetime (handles mixed formats)
         self.merged_df["order_moment_created"] = pd.to_datetime(
             self.merged_df["order_moment_created"], errors="coerce", format="mixed"
         )
 
-        # Check for missing order_moment_created
         logger.info(
             f"   • Missing order_moment_created: {self.merged_df['order_moment_created'].isna().sum()}"
         )
-
         logger.info("✓ Merging complete")
 
-    # ========================================================================
-    # STEP 3: EXTRACT TIME COMPONENTS FOR ANALYSIS
-    # ========================================================================
-    # TODO: Create a new column 'year_month' by extracting year-month from order_moment_created
-    # TODO: Create a new column 'year' by extracting year from order_moment_created
-    # TODO: Create a new column 'month' by extracting month from order_moment_created
-    # HINT: Use .dt.to_period('M') for year_month, .dt.year for year, .dt.month for month
     def extract_time_components(self):
-        """Extract time components from order_moment_created."""
+        """
+        Extract time components for temporal aggregation.
+
+        Creates year_month periods for monthly grouping and separate year/month columns.
+        """
         logger.info(" -> Extracting time components...")
 
         # Extract year-month (e.g., "2021-01", "2021-02", etc.)
@@ -133,41 +177,36 @@ class PaymentTrendsAnalyzer:
 
         logger.info("✓ Time components extracted")
 
-    # ========================================================================
-    # STEP 4: CALCULATE MONTHLY PAYMENT METHOD MARKET SHARE
-    # ========================================================================
-    # TODO: Filter to only PAID payments (payment_status == "PAID")
-    # TODO: Group by year_month and payment_method, count transactions
-    # TODO: Calculate total transactions per month (group by year_month only)
-    # TODO: Merge the two results above
-    # TODO: Calculate market share percentage: (transactions per method / total transactions) * 100
-    # TODO: Save result to a new DataFrame called 'monthly_shares'
-    # BUSINESS QUESTION: What percentage of transactions use ONLINE vs CREDIT each month?
     def calculate_monthly_payment_shares(self):
-        """Calculate monthly payment method market share."""
+        """
+        Calculate monthly market share percentage for each payment method.
+
+        Market share = (method transactions / total monthly transactions) × 100
+        Only includes successfully completed (PAID) transactions.
+        """
         logger.info(" -> Calculating monthly payment method market share...")
 
-        # Filter to only PAID payments
+        # Filter to only successfully completed payments
         paid_df = self.merged_df[self.merged_df["payment_status"] == "PAID"].copy()
         logger.info(
             f"   • Total PAID transactions: {len(paid_df)} out of {len(self.merged_df)} total"
         )
 
-        # Count transactions per payment method per year_month
+        # Count transactions per payment method per month
         method_counts = (
             paid_df.groupby(["year_month", "payment_method"])
             .agg(total_transactions=("order_id", "count"))
             .reset_index()
         )
 
-        # Count total transactions per year_month
+        # Calculate monthly totals (denominator for market share)
         total_counts = (
             paid_df.groupby("year_month")
             .agg(monthly_total_transactions=("order_id", "count"))
             .reset_index()
         )
 
-        # Merge method_counts with total_counts
+        # Calculate market share percentage: (method transactions / total) × 100
         merged_counts = (
             method_counts.merge(total_counts, on="year_month")
             .assign(
@@ -179,59 +218,47 @@ class PaymentTrendsAnalyzer:
             .round(3)
         )
 
-        # Store the result
         self.monthly_shares = merged_counts.reset_index()
-
         logger.info("✓ Monthly payment method market share calculated")
 
-    # ========================================================================
-    # STEP 5: DETECT ANOMALIES IN PAYMENT METHOD USAGE
-    # ========================================================================
-    # TODO: For each payment_method, calculate the mean and standard deviation of its monthly market share
-    # TODO: Calculate z-score for each month: (actual_share - mean_share) / std_share
-    # TODO: Flag as anomaly if z-score > 2.5 or z-score < -2.5 (statistical outliers)
-    # TODO: Add columns 'zscore' and 'is_anomaly' to monthly_shares DataFrame
-    # BUSINESS QUESTION: Were there any unusual spikes or drops in payment method usage?
-    # HINT: A z-score of 2.5 means 2.5 standard deviations from the mean (very unusual)
     def calculate_anomalies(self):
-        """Detect anomalies in payment method usage over time."""
+        """
+        Detect statistical anomalies using z-score analysis.
+
+        Flags observations where |z-score| > 2.5 (99.38% confidence interval).
+        Anomalies indicate unusual spikes or drops in payment method usage.
+        """
         logger.info(" -> Detecting anomalies in payment method usage... ")
 
-        # Calculate mean and std dev of share_pct per payment_method
+        # Calculate historical statistics per payment method
         stats = (
             self.monthly_shares.groupby("payment_method")["share_pct"]
             .agg(["mean", "std"])
             .round(3)
         )
 
-        # Merge stats back to monthly_shares
         self.monthly_shares = self.monthly_shares.merge(stats, on="payment_method")
 
-        # Calculate z-score for each row in monthly_shares
+        # Calculate z-score: (actual - mean) / std_dev
         self.monthly_shares["zscore"] = (
             self.monthly_shares["share_pct"] - self.monthly_shares["mean"]
         ) / self.monthly_shares["std"]
 
-        # Flag anomalies where |z-score| > 2.5
+        # Flag anomalies beyond 2.5 standard deviations (99.38% confidence)
         self.monthly_shares["is_anomaly"] = self.monthly_shares["zscore"].abs() > 2.5
 
         logger.info("✓ Anomaly detection complete")
 
-    # ========================================================================
-    # STEP 6: VISUALIZE PAYMENT METHOD TRENDS OVER TIME
-    # ========================================================================
-    # TODO: Create a line chart showing market share % over time for top 5 payment methods
-    # TODO: Mark anomalies with red 'X' markers on the line chart
-    # TODO: Use figsize=(14, 8) for readability
-    # TODO: Add title: "Payment Method Market Share Trends Over Time"
-    # TODO: Add labels for x-axis (Month) and y-axis (Market Share %)
-    # TODO: Show legend with payment method names
-    # TODO: Save the plot to results/task-e/payment_trends_line_chart.png
     def visualize_payment_trends(self):
-        """Visualize payment method trends over time."""
+        """
+        Create dual-axis line chart showing payment method trends over time.
+
+        Separates high-share and low-share methods for readability.
+        Red 'X' markers indicate detected anomalies.
+        """
         logger.info(" -> Visualizing payment method trends over time...")
 
-        # Identify top 5 payment methods by total transactions
+        # Filter to top 5 payment methods by transaction volume
         top_n = 5
         top_payment_methods = (
             self.monthly_shares.groupby("payment_method")["total_transactions"]
@@ -240,15 +267,12 @@ class PaymentTrendsAnalyzer:
             .index
         )
 
-        # Keep only rows where payment_method is in top_5_methods
         top_n_data = self.monthly_shares[
             self.monthly_shares["payment_method"].isin(top_payment_methods)
         ]
+        anomalies = top_n_data[top_n_data["is_anomaly"]]
 
-        # Define anomalies FIRST (from top_n_data)
-        anomalies = top_n_data[top_n_data["is_anomaly"] == True]
-
-        # Create figure with 2 subplots (one above the other)
+        # Create dual-axis figure (high-share and low-share methods separated)
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10), sharex=True)
 
         # Top plot: High-share methods (ONLINE, VOUCHER)
@@ -305,12 +329,10 @@ class PaymentTrendsAnalyzer:
             label="Anomaly",
         )
 
-        plt.xticks(rotation=45, ha="right")  # Rotate x-axis labels for readability
+        plt.xticks(rotation=45, ha="right")
         plt.tight_layout()
-
-        # Save the plot
         plt.savefig(
-            f"{self.output_dir}/payment_trends_line_chart.png",
+            f"{self.output_plots_dir}/payment_trends_line_chart.png",
             dpi=300,
             bbox_inches="tight",
         )
@@ -318,38 +340,27 @@ class PaymentTrendsAnalyzer:
 
         logger.info("✓ Payment method trends visualization complete")
 
-    # ========================================================================
-    # STEP 7: CREATE STACKED AREA CHART FOR ALL PAYMENT METHODS
-    # ========================================================================
-    # TODO: Pivot the monthly_shares DataFrame so:
-    #       - Index = year_month (time on x-axis)
-    #       - Columns = payment_method (different payment types)
-    #       - Values = share_pct (market share percentage)
-    # TODO: Fill missing values with 0 (months where a payment method wasn't used)
-    # TODO: Create a stacked area chart using .plot(kind='area', stacked=True)
-    # TODO: Use figsize=(14, 8) and alpha=0.7 for transparency
-    # TODO: Add title: "Payment Method Market Share Evolution (Stacked)"
-    # TODO: Save to results/task-e/payment_trends_stacked_area.png
-    # BUSINESS INSIGHT: This shows how payment method mix changed over time!
     def visualize_stacked_area_chart(self):
-        """Create stacked area chart for all payment methods."""
+        """
+        Create stacked area chart showing market share composition over time.
+
+        Groups minor payment methods into 'Other' category for clarity.
+        Shows relative proportions and market mix evolution.
+        """
         logger.info(" -> Creating stacked area chart for all payment methods...")
 
-        # Pivot the DataFrame
+        # Pivot to wide format: months × payment methods
         pivot_df = self.monthly_shares.pivot(
             index="year_month", columns="payment_method", values="share_pct"
         )
 
-        # Group minor payment methods into "Other"
+        # Group minor methods into "Other" category for readability
         top_n = 5
         top_methods = pivot_df.sum().nlargest(top_n).index
         pivot_df["Other"] = pivot_df.drop(columns=top_methods).sum(axis=1)
-        pivot_df_simplified = pivot_df[list(top_methods) + ["Other"]]
+        pivot_df_simplified = pivot_df[list(top_methods) + ["Other"]].fillna(0)
 
-        # Fill missing values with 0
-        pivot_df_simplified = pivot_df_simplified.fillna(0)
-
-        # Create stacked area chart
+        # Create stacked area chart (100% composition)
         ax = pivot_df_simplified.plot(
             kind="area", stacked=True, figsize=(14, 8), alpha=0.7
         )
@@ -362,7 +373,7 @@ class PaymentTrendsAnalyzer:
 
         # Save the plot
         plt.savefig(
-            f"{self.output_dir}/payment_trends_stacked_area.png",
+            f"{self.output_plots_dir}/payment_trends_stacked_area.png",
             dpi=300,
             bbox_inches="tight",
         )
@@ -370,50 +381,39 @@ class PaymentTrendsAnalyzer:
 
         logger.info("✓ Stacked area chart created")
 
-    # ========================================================================
-    # STEP 8: ANALYZE PAYMENT AMOUNT DISTRIBUTION BY METHOD
-    # ========================================================================
-    # TODO: Filter to only PAID payments
-    # TODO: For top 5 payment methods (by transaction count), create a boxplot
-    # TODO: X-axis: payment_method, Y-axis: payment_amount
-    # TODO: Use figsize=(12, 8)
-    # TODO: Add title: "Payment Amount Distribution by Method"
-    # TODO: Rotate x-axis labels 45 degrees for readability
-    # TODO: Save to results/task-e/payment_amount_boxplot.png
-    # BUSINESS QUESTION: Which payment methods have higher average order values?
-    # HINT: Boxplots show median, quartiles, and outliers - great for comparing distributions!
     def analyze_payment_amount_distribution(self):
-        """Analyze payment amount distribution by method."""
+        """
+        Analyze payment amount distribution across payment methods using boxplots.
+
+        Creates three-panel visualization (high, medium, low share methods).
+        Filters to 99th percentile to remove extreme outliers.
+        """
         logger.info(" -> Analyzing payment amount distribution by method...")
 
-        # Filter to only PAID payments
         paid_df = self.merged_df[self.merged_df["payment_status"] == "PAID"].copy()
 
-        # Identify top 5 payment methods by transaction count
+        # Get top 5 payment methods
         top_n = 5
         top_payment_methods = (
             paid_df["payment_method"].value_counts().nlargest(top_n).index
         )
 
-        # Filter data to only top payment methods
         top_data = paid_df[paid_df["payment_method"].isin(top_payment_methods)].copy()
-        # Convert payment_amount to float
         top_data["payment_amount"] = top_data["payment_amount"].astype(float)
 
-        # Remove extreme outliers (keep 99% of data for better visualization)
+        # Filter outliers: keep 99th percentile for clearer visualization
         percentile_99 = top_data["payment_amount"].quantile(0.99)
         top_data_filtered = top_data[top_data["payment_amount"] <= percentile_99]
         logger.info(f"   • Filtered to 99th percentile: ${percentile_99:.2f}")
 
-        # Create boxplot using filtered data
+        # Create three-panel boxplot (separated by market share level)
         fig, (ay1, ay2, ay3) = plt.subplots(1, 3, figsize=(18, 6))
 
-        # Prepare data for boxplot
         high_share_methods = ["ONLINE", "DEBIT"]
         middle_share_methods = ["VOUCHER"]
         low_share_methods = ["MEAL_BENEFIT", "STORE_DIRECT_PAYMENT"]
 
-        # Left plot: High-share methods
+        # Panel 1: High market share methods
         data_to_plot_high = [
             top_data_filtered[top_data_filtered["payment_method"] == method][
                 "payment_amount"
@@ -438,7 +438,7 @@ class PaymentTrendsAnalyzer:
         ay2.set_title("Payment Amount Distribution by Method - Medium Share Methods")
         ay2.grid(True, alpha=0.3, linestyle="--")
 
-        # Right plot: Low-share methods
+        # Panel 3: Low market share methods
         data_to_plot_low = [
             top_data_filtered[top_data_filtered["payment_method"] == method][
                 "payment_amount"
@@ -456,7 +456,7 @@ class PaymentTrendsAnalyzer:
 
         # Save the plot
         plt.savefig(
-            f"{self.output_dir}/payment_amount_boxplot.png",
+            f"{self.output_plots_dir}/payment_amount_boxplot.png",
             dpi=300,
             bbox_inches="tight",
         )
@@ -464,8 +464,231 @@ class PaymentTrendsAnalyzer:
 
         logger.info("✓ Payment amount distribution analysis complete")
 
+    def save_results(self):
+        """
+        Export analysis results to CSV files.
+
+        Saves: monthly shares, detected anomalies, and summary statistics by payment method.
+        """
+        logger.info(" -> Saving results to CSV files...")
+
+        # Save monthly_shares DataFrame
+        self.monthly_shares.to_csv(
+            f"{self.output_report_dir}/monthly_payment_shares.csv", index=False
+        )
+
+        # Save only anomalies
+        anomalies = self.monthly_shares[self.monthly_shares["is_anomaly"]]
+        anomalies.to_csv(f"{self.output_report_dir}/payment_anomalies.csv", index=False)
+
+        # Create summary DataFrame
+        summary = (
+            self.monthly_shares.groupby("payment_method")
+            .agg(
+                total_transactions=("total_transactions", "sum"),
+                avg_market_share=("share_pct", "mean"),
+                anomaly_count=("is_anomaly", "sum"),
+            )
+            .reset_index()
+            .round(3)
+        )
+        summary.to_csv(
+            f"{self.output_report_dir}/payment_method_summary.csv", index=False
+        )
+
+        logger.info("✓ Results saved successfully")
+
+    def print_business_insights(self):
+        """
+        Generate executive summary with key business insights.
+
+        Includes: analysis period, top payment methods, anomaly count, and recommendations.
+        Saves formatted report to payment_trends_summary.txt.
+        """
+        logger.info("-> Printing business insights summary...")
+
+        analysis_start = self.monthly_shares["year_month"].min()
+        analysis_end = self.monthly_shares["year_month"].max()
+        total_transactions = self.monthly_shares["total_transactions"].sum()
+
+        # Top 3 payment methods
+        top_n = 3
+        top_methods = (
+            self.monthly_shares.groupby("payment_method")["total_transactions"]
+            .sum()
+            .nlargest(top_n)
+        )
+
+        # Total anomalies detected
+        total_anomalies = self.monthly_shares["is_anomaly"].sum()
+        anomalies_sample = (
+            self.monthly_shares[self.monthly_shares["is_anomaly"]]
+            .sort_values("zscore", key=abs, ascending=False)[
+                ["payment_method", "year_month", "share_pct", "zscore"]
+            ]
+            .head(2)
+        )
+
+        # Write into the file
+        with open(f"{self.output_report_dir}/payment_trends_summary.txt", "w") as f:
+            # Format the report
+            report = "=" * 69 + "\n"
+            report += "PAYMENT TRENDS ANALYSIS SUMMARY\n"
+            report += "=" * 69 + "\n"
+            report += f"Analysis Period: {analysis_start} to {analysis_end}\n"
+            report += f"Total Transactions: {total_transactions:,}\n"
+            report += f"\nTop {top_n} Payment Methods:\n"
+            for i, (method, count) in enumerate(top_methods.items(), 1):
+                pct = count / total_transactions * 100
+                report += f"  {i}. {method}: {count:,} ({pct:.1f}%)\n"
+            report += f"\nAnomalies Detected: {total_anomalies}\n"
+            if not anomalies_sample.empty:
+                for anomaly in anomalies_sample.itertuples(index=False):
+                    report += f"  • {anomaly.payment_method} in {anomaly.year_month}: {anomaly.share_pct:.1f}% (z-score: {anomaly.zscore:.1f})\n"
+                report += f"\nRecommendation: Investigate {anomalies_sample.iloc[0].year_month} {anomalies_sample.iloc[0].payment_method} anomaly - possible promotion?\n"
+            else:
+                report += "  • No significant anomalies detected.\n"
+            report += "=" * 69 + "\n"
+            f.write(report)
+
+        logger.info("✓ Business insights summary printed")
+
+    def seasonal_analysis(self):
+        """
+        Analyze seasonal patterns in payment method usage.
+
+        Groups by calendar month (ignoring year) to identify recurring patterns.
+        Creates heatmap: payment_method × month with average market share.
+        """
+        logger.info(" -> Performing seasonal analysis of payment methods...")
+
+        # Extract month from year_month
+        self.monthly_shares["month"] = (
+            self.monthly_shares["year_month"].dt.to_timestamp().dt.month_name().str[:3]
+        )
+
+        # Group by month and payment_method to calculate average share_pct
+        seasonal_data = (
+            self.monthly_shares.groupby(["month", "payment_method"])["share_pct"]
+            .mean()
+            .reset_index()
+        )
+
+        # Pivot for heatmap
+        heatmap_data = seasonal_data.pivot(
+            index="payment_method", columns="month", values="share_pct"
+        ).fillna(0)
+
+        # Create heatmap
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(
+            heatmap_data,
+            annot=True,
+            fmt=".1f",
+            cmap="YlGnBu",
+            linewidths=0.5,
+            linecolor="gray",
+            cbar_kws={"label": "Average Market Share (%)"},
+        )
+        plt.title("Seasonal Payment Method Patterns")
+        plt.xlabel("Month")
+        plt.ylabel("Payment Method")
+        plt.tight_layout()
+
+        # Save plot
+        plt.savefig(
+            f"{self.output_plots_dir}/seasonal_payment_patterns.png",
+            dpi=300,
+            bbox_inches="tight",
+        )
+        plt.show()
+
+        logger.info("✓ Seasonal analysis complete")
+
+    def correlation_analysis(self):
+        """
+        Calculate Pearson correlations between payment methods.
+
+        Negative correlation indicates substitution effect (users switch between methods).
+        Positive correlation suggests methods used by similar customer segments.
+        """
+        logger.info(" -> Performing correlation analysis between payment methods...")
+
+        # Pivot to create a wide format DataFrame
+        corr_data = self.monthly_shares.pivot(
+            index="year_month", columns="payment_method", values="share_pct"
+        ).fillna(0)
+
+        # Calculate correlation matrix
+        corr_matrix = corr_data.corr()
+
+        # Extract ONLINE vs CREDIT CORRELATION
+        online_credit_corr = corr_matrix.loc["ONLINE", "CREDIT"]
+        logger.info(
+            f"   • Correlation between ONLINE and CREDIT: {online_credit_corr:.3f}"
+        )
+
+        # Interpret correlation
+        if online_credit_corr < -0.5:
+            logger.info(
+                "     - Strong negative correlation: substitution effect likely."
+            )
+        elif online_credit_corr > 0.5:
+            logger.info("     - Strong positive correlation: methods used together.")
+        else:
+            logger.info("     - Weak correlation: little relationship between methods.")
+
+        # Filter to top 5 payment methods for better visualization
+        top_n = 5
+        top_methods = (
+            self.monthly_shares.groupby("payment_method")["total_transactions"]
+            .sum()
+            .nlargest(top_n)
+            .index
+        )
+        filtered_corr_matrix = corr_matrix.loc[top_methods, top_methods]
+
+        # Create heatmap
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(
+            filtered_corr_matrix,
+            annot=True,
+            fmt=".2f",
+            cmap="coolwarm",
+            vmin=-1,
+            vmax=1,
+            linewidths=0.5,
+            linecolor="gray",
+            cbar_kws={"label": "Correlation Coefficient"},
+        )
+        plt.title("Payment Method Correlation Analysis")
+        plt.xlabel("Payment Method")
+        plt.ylabel("Payment Method")
+        plt.xticks(rotation=45, ha="right")
+        plt.yticks(rotation=0)
+        plt.tight_layout()
+
+        # Save plot
+        plt.savefig(
+            f"{self.output_plots_dir}/payment_method_correlations.png",
+            dpi=300,
+            bbox_inches="tight",
+        )
+        plt.show()
+
+        logger.info("✓ Correlation analysis complete")
+
     def run(self):
-        """Main method to run the payment trends analysis."""
+        """
+        Execute complete payment trends analysis pipeline.
+
+        Pipeline stages:
+        1. Load and prepare data
+        2. Calculate monthly market shares
+        3. Detect statistical anomalies
+        4. Generate 5 visualizations
+        5. Export results and insights
+        """
         self.load_data()
         self.prepare_data()
         self.merge_orders_payments()
@@ -475,66 +698,13 @@ class PaymentTrendsAnalyzer:
         self.visualize_payment_trends()
         self.visualize_stacked_area_chart()
         self.analyze_payment_amount_distribution()
+        self.save_results()
+        self.print_business_insights()
+        self.seasonal_analysis()
+        self.correlation_analysis()
 
 
-# ========================================================================
-# STEP 9: SAVE RESULTS TO CSV FILES
-# ========================================================================
-# TODO: Create directory results/task-e/ if it doesn't exist (use Path.mkdir with parents=True, exist_ok=True)
-# TODO: Save monthly_shares DataFrame to results/task-e/monthly_payment_shares.csv
-# TODO: Save only anomalies (where is_anomaly == True) to results/task-e/payment_anomalies.csv
-# TODO: Create a summary DataFrame with:
-#       - payment_method
-#       - total_transactions (sum across all months)
-#       - avg_market_share (mean of share_pct)
-#       - anomaly_count (count of anomalies for that method)
-# TODO: Save summary to results/task-e/payment_method_summary.csv
-
-# ========================================================================
-# STEP 10: PRINT BUSINESS INSIGHTS SUMMARY
-# ========================================================================
-# TODO: Print analysis period (min and max date from year_month)
-# TODO: Print total number of transactions analyzed
-# TODO: Print top 3 payment methods by total transaction count
-# TODO: Print total number of anomalies detected
-# TODO: Print 3-5 sample anomalies with details (payment_method, month, market_share, z-score)
-# TODO: Print a business recommendation based on trends observed
-# EXAMPLE OUTPUT:
-# ======================================================================
-# PAYMENT TRENDS ANALYSIS SUMMARY
-# ======================================================================
-# Analysis Period: Jan 2021 to Dec 2021
-# Total Transactions: 400,377
-# Top 3 Payment Methods:
-#   1. ONLINE: 293,845 (73.4%)
-#   2. DEBIT: 12,452 (3.1%)
-#   3. VOUCHER: 45,946 (11.5%)
-# Anomalies Detected: 8
-#   • CREDIT in Mar 2021: 15.2% (z-score: 3.1) - Unusual spike
-#   • ONLINE in Jul 2021: 68.5% (z-score: -2.8) - Unusual drop
-# Recommendation: Investigate Mar 2021 CREDIT spike - possible promotion?
-# ======================================================================
-
-# ========================================================================
-# BONUS STEP 11 (OPTIONAL): SEASONAL ANALYSIS
-# ========================================================================
-# TODO: Group transactions by month (1-12, ignoring year) to find seasonal patterns
-# TODO: Calculate average market share per calendar month for each payment method
-# TODO: Create a heatmap showing payment_method (y-axis) vs month (x-axis) with share_pct as color
-# TODO: Save to results/task-e/seasonal_payment_patterns.png
-# BUSINESS QUESTION: Do certain payment methods spike during holidays (Dec) or tax season (Apr)?
-
-# ========================================================================
-# BONUS STEP 12 (OPTIONAL): CORRELATION ANALYSIS
-# ========================================================================
-# TODO: Pivot monthly_shares to create a correlation matrix between payment methods
-# TODO: Calculate correlation: when ONLINE usage goes up, does CREDIT go down?
-# TODO: Create a heatmap of correlations using seaborn (sns.heatmap)
-# TODO: Save to results/task-e/payment_method_correlations.png
-# BUSINESS INSIGHT: Negative correlation = substitution effect (users switch between methods)
-#                   Positive correlation = methods used together or by similar customer segments
-
-# ? Entry point for payment trends analysis
+# Entry point for payment trends analysis
 if __name__ == "__main__":
     analyzer = PaymentTrendsAnalyzer()
     analyzer.run()

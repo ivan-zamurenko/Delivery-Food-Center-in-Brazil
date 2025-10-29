@@ -1,0 +1,14 @@
+=====================================================================
+PAYMENT TRENDS ANALYSIS SUMMARY
+=====================================================================
+Analysis Period: 2021-01 to 2021-04
+Total Transactions: 399,932
+
+Top 3 Payment Methods:
+  1. ONLINE: 312,231 (78.1%)
+  2. VOUCHER: 48,096 (12.0%)
+  3. DEBIT: 12,331 (3.1%)
+
+Anomalies Detected: 0
+  • No significant anomalies detected.
+=====================================================================

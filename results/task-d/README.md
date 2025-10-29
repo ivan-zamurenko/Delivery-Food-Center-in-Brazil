@@ -1,6 +1,7 @@
 # Task D — Data Quality & Pipeline (Data Engineering)
 
 **Completed:** October 26, 2025  
+**Author:** Ivan Zamurenko  
 **Goal:** Build a reproducible, production-ready data cleaning pipeline with comprehensive validation and testing.
 
 ---
@@ -330,8 +331,14 @@ results/task-D/README.md           # This file
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Author & Status
 
-**Task Completion Date:** October 26, 2025
-
+**Author:** Ivan Zamurenko  
+**Completion Date:** October 26, 2025  
 **Status:** ✅ Complete and Production-Ready
+
+### Next Steps:
+- Implement automated data quality monitoring
+- Add data lineage tracking
+- Create data catalog with metadata
+- Set up CI/CD pipeline for data validation
