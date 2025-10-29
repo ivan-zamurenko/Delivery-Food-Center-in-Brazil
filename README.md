@@ -155,7 +155,8 @@ Delivery-Food-Center-in-Brazil/
 ├── results/                    # Analysis outputs & documentation
 │   ├── task-a/                 # Profitability results + README
 │   ├── task-b/                 # Delivery time results + README
-│   └── task-d/                 # Data quality results + README
+│   ├── task-d/                 # Data quality results + README
+│   └── task-e/                 # Payment trends results + README
 ├── notebook/                   # Jupyter notebooks & visualizations
 └── .github/workflows/          # CI/CD automation
 ```
@@ -190,6 +191,9 @@ python scripts/run_delivery_time_optimization.py
 
 # Task D: Data cleaning pipeline
 python scripts/clean_data.py
+
+# Task E: Payment trends analysis
+python scripts/payment_trends.py
 ```
 
 ### 4. Run Tests
@@ -249,6 +253,12 @@ pytest tests/test_data_quality.py -v
 - Saved 350K+ valid order records from incorrect deletion
 - Established automated testing preventing future regressions
 
+### Payment Strategy & Market Intelligence
+- Detected 8 payment anomalies for early warning system implementation
+- Identified ONLINE payment dominance (30.1% market share, highest correlation with total transactions)
+- Discovered seasonal payment patterns across calendar months for targeted promotions
+- Quantified substitution effect between ONLINE and CREDIT methods (-0.89 correlation)
+
 ---
 
 ## 🎓 Key Learnings & Challenges
@@ -289,6 +299,7 @@ Each completed task includes a comprehensive README with:
 - [Task A: Channel & Payment Profitability →](results/task-a/README.md)
 - [Task B: Delivery Time Optimization →](results/task-b/README.md)
 - [Task D: Data Quality Pipeline →](results/task-d/README.md)
+- [Task E: Payment Trends & Anomaly Detection →](results/task-e/README.md)
 
 ---
 
