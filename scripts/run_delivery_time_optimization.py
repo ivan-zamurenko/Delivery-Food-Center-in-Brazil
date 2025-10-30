@@ -59,7 +59,8 @@ def get_delivery_time_data():
     # Step 5: Calculate delivery time statistics and save results to CSV
     avg_delivery_time_df = calculate_delivery_time_statistics(filtered_df)
     avg_delivery_time_df.to_csv(
-        "../results/task-b/driver_modal_delivery_time_statistics.csv", index=True
+        "../results/task-b/reports/driver_modal_delivery_time_statistics.csv",
+        index=True,
     )
     # Step 6: Return the summary DataFrame for further analysis or visualization
     return avg_delivery_time_df

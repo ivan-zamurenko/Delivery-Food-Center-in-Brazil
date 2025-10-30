@@ -52,8 +52,10 @@ class DataCleaner:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Create results directory for reports
-        self.results_dir = project_root / "results/task-D"
+        self.results_dir = project_root / "results/task-d"
+        self.results_reports_dir = self.results_dir / "reports"
         self.results_dir.mkdir(parents=True, exist_ok=True)
+        self.results_reports_dir.mkdir(parents=True, exist_ok=True)
 
         self.cleaning_stats = {}
 
@@ -464,7 +466,7 @@ class DataCleaner:
         logger.info(" -> Generating cleaning report...")
 
         # Generate detailed text report
-        report_path = self.results_dir / "cleaning_report.txt"
+        report_path = self.results_reports_dir / "cleaning_report.txt"
         with open(report_path, "w", encoding="utf-8") as f:
             f.write("=" * 70 + "\n")
             f.write("Data Cleaning Report - Task D\n")

@@ -1,36 +1,163 @@
-# 🚚 Delivery Food Center in Brazil 🇧🇷# 🚚 Delivery Food Center in Brazil 🇧🇷
+# 🚚 Food Delivery Analytics Platform | Brazil Market 🇧🇷
 
+**Ivan Zamurenko** | [LinkedIn](https://www.linkedin.com/in/ivan-zamurenko/) | [GitHub](https://github.com/ivan-zamurenko)
 
+---
 
-**Production-ready analytics platform analyzing 367K+ food delivery orders across Brazil**Welcome to my data engineering & analytics portfolio project!  
+## 📊 Executive Summary
 
-This repository showcases my work on a real-world food delivery platform in Brazil, focusing on data analysis, business insights, and reproducible workflows.
+Production-grade analytics platform processing **1.1M+ records** across 7 relational tables, delivering actionable insights for a Brazilian food delivery marketplace.
 
-This repository demonstrates end-to-end data engineering and business intelligence capabilities—from raw data cleaning to actionable insights that drive business decisions.
+**Key Metrics:**
+- 💰 **R$43M** in transaction volume analyzed
+- 📦 **367K** orders processed across 32 hubs
+- 🏍️ **19.9%** delivery time optimization identified
+- ✅ **99.8%** data retention achieved (fixed critical 95% data loss bug)
+- 📈 **8 anomalies** detected in payment trends using statistical analysis
 
-## ✨ What’s Inside?
+---
 
----- 📦 Clean project structure for professional data science
+## 🎯 Business Impact
 
-- 🐍 Python scripts for profitability & delivery time optimization
+| Area | Insight | Value |
+|------|---------|-------|
+| **Revenue** | Top channel + payment combo (Channel #5 + ONLINE) | R$23.5M (58% of total) |
+| **Operations** | BIKER drivers outperform MOTOBOY | 19.9% faster (21.8 vs 27.2 min) |
+| **Quality** | Fixed NaN filtering bug | Saved 350K+ valid records |
+| **Strategy** | Payment method correlation discovery | ONLINE ↔ CREDIT: -0.89 (strong substitution) |
+| **Network** | Hub coverage analysis | Identified 8 high-potential expansion hubs |
 
-## 🎯 Project Overview- 🗃️ SQL queries for business intelligence tasks
+---
 
-- 📊 Pandas-powered analysis & visualizations
+## 🚀 Project Highlights
 
-Built a comprehensive analytics pipeline handling **1.1M+ records** across 7 relational tables, delivering insights on revenue optimization, operational efficiency, and data quality assurance for a Brazilian food delivery marketplace.- ✅ Automated tests & CI for reliability
+### 📈 Task A: Revenue & Profitability Analysis
+**Analyzed 400K+ payments across 49 channels × 20 payment methods**
+- Top 10 combos drive **72%** of revenue
+- Recommended consolidation of 78 low-revenue methods
+- Built interactive heatmap with log-scale normalization
 
+**Tech:** Python (pandas, seaborn) • SQL (multi-table joins, aggregations) • Statistical visualization
 
+---
 
-### Key Achievements:## 🚀 Current Focus
+### ⚡ Task B: Delivery Time Optimization
+**19,704 successful deliveries analyzed for operational efficiency**
+- **BIKER:** 21.75 min avg (fastest)
+- **MOTOBOY:** 27.17 min avg (19.9% slower)
+- Statistical outlier filtering (kept 99th percentile: <120 min)
 
-- 🐛 **Fixed Critical Bug**: Resolved 95% data loss issue, improving retention from 5% to 99.7%- Task A: Channel & Payment Mix Profitability
+**Tech:** Datetime operations • Boxplot/violin distributions • Hypothesis testing framework
 
-- 💰 **Revenue Analysis**: Identified R$43M in transactions, pinpointed top channels driving 85%+ of business- Task B: Delivery Time Optimization (Driver Analysis)
+---
 
-- ⚡ **Operational Insights**: Found 19.9% delivery time improvement opportunity through driver fleet optimization- More advanced analytics coming soon!
+### 🌐 Task C: Hub Coverage & Store Network
+**32 hubs managing 2,147 stores analyzed for geographic optimization**
+- Identified **8 high-potential hubs** (many stores, low revenue)
+- Found **8 consolidation targets** (few stores, low revenue)
+- Quartile-based segmentation for strategic planning
 
-- ✅ **Quality Assurance**: Built production-ready pipeline with 99.8% data retention and comprehensive testing
+**Tech:** Geospatial analysis • Opportunity identification • Multi-chart dashboards
+
+---
+
+### � Task D: Data Quality Engineering
+**Built production ETL pipeline with 99.8% retention**
+- **Fixed critical bug:** NaN filtering deleted 95% of data → now 99.7% retention
+- Handled Brazilian Portuguese encoding (latin1)
+- Implemented CASCADE DELETE with referential integrity checks
+
+**Tech:** ETL design • Data validation • pytest testing • Error handling
+
+---
+
+### 💳 Task E: Payment Trends & Anomaly Detection
+**400K+ transactions analyzed for market intelligence**
+- **8 anomalies detected** using z-score analysis (2.5σ threshold)
+- Seasonal patterns across 4 months (Jan-Apr 2021)
+- Correlation matrix: ONLINE dominance (30.1% market share)
+
+**Tech:** Time series analysis • Statistical anomaly detection • Correlation analysis • Seasonal decomposition
+
+---
+
+## 🛠️ Tech Stack
+
+**Languages:** Python 3.12 • SQL (PostgreSQL)  
+**Libraries:** pandas • SQLAlchemy • matplotlib • seaborn • pytest  
+**Database:** PostgreSQL (7 tables, foreign keys, indexes)  
+**Tools:** Git • GitHub Actions CI • Conda • Jupyter
+
+**Architecture:** Modular design • Idempotent ETL • Comprehensive testing • Production-ready error handling
+
+---
+
+## 📁 Quick Start
+
+```bash
+# Clone & setup
+git clone https://github.com/ivan-zamurenko/Delivery-Food-Center-in-Brazil.git
+cd Delivery-Food-Center-in-Brazil
+conda create -n delivery-analytics python=3.12
+conda activate delivery-analytics
+pip install -r requirements.txt
+
+# Run analyses
+python scripts/run_profitability.py            # Task A
+python scripts/run_delivery_time_optimization.py  # Task B
+python scripts/hub_coverage_analysis.py         # Task C
+python scripts/clean_data.py                    # Task D
+python scripts/payment_trends.py                # Task E
+
+# Run tests
+pytest tests/ -v
+```
+
+---
+
+## � Skills Demonstrated
+
+**Data Engineering:** ETL pipelines • Data validation • Referential integrity • Encoding handling  
+**Analytics:** Revenue analysis • Operations optimization • Statistical testing • Trend analysis  
+**Visualization:** Heatmaps • Boxplots • Violin plots • Time series charts • Correlation matrices  
+**Software Engineering:** pytest testing • Modular architecture • CI/CD • Git version control
+
+---
+
+## � Documentation
+
+Each task includes comprehensive README with business context, technical details, and results:
+
+- [📈 Task A: Channel & Payment Profitability](results/task-a/README.md)
+- [⚡ Task B: Delivery Time Optimization](results/task-b/README.md)
+- [🌐 Task C: Hub Coverage & Store Network](results/task-c/README.md)
+- [🔧 Task D: Data Quality Pipeline](results/task-d/README.md)
+- [💳 Task E: Payment Trends & Anomaly Detection](results/task-e/README.md)
+
+---
+
+## 🎓 Key Achievements
+
+✅ **Fixed critical data loss bug** (95% → 99.7% retention)  
+✅ **R$43M revenue analyzed** with actionable recommendations  
+✅ **19.9% delivery efficiency gain** identified  
+✅ **Production-ready codebase** with comprehensive testing  
+✅ **CV-ready documentation** with business impact metrics
+
+---
+
+## 📧 Contact
+
+**Ivan Zamurenko**  
+💼 [LinkedIn](https://www.linkedin.com/in/ivan-zamurenko/) | 🐙 [GitHub](https://github.com/ivan-zamurenko)
+
+> 💡 Open for collaboration and opportunities in Data Engineering & Analytics!
+
+---
+
+<div align="center">
+<i>Built with Python 🐍 | Powered by PostgreSQL 🐘 | Tested with pytest ✅</i>
+</div>
 
 ## 🛠️ Technologies
 

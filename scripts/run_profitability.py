@@ -28,7 +28,7 @@ def get_channel_profitability_data():
     # Calculate profitability metrics and save results
     profitability_df = calculate_profitability(merged_df)
     profitability_df.to_csv(
-        "../results/task-a/channel_payment_profitability.csv", index=True
+        "../results/task-a/reports/channel_payment_profitability.csv", index=True
     )
     return profitability_df
 

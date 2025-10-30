@@ -1,0 +1,35 @@
+================================================================================
+HUB COVERAGE & STORE NETWORK ANALYSIS - EXECUTIVE SUMMARY
+================================================================================
+
+OVERVIEW
+--------------------------------------------------------------------------------
+Total Hubs:                               32
+Total Stores:                            951
+Total Orders:                        418,241
+Total Revenue:                  R$ 37,286,399.12
+
+AVERAGES
+--------------------------------------------------------------------------------
+Stores per Hub:                         29.7
+Revenue per Hub:                R$ 1,165,199.97
+Revenue per Store:              R$    40,150.86
+
+TOP 3 PERFORMING HUBS
+--------------------------------------------------------------------------------
+1. GOLDEN SHOPPING (RIO DE JANEIRO, RJ)
+   Stores: 65 | Revenue: R$3,961,992.60 | Orders: 52,700
+
+2. SUBWAY SHOPPING (SÃO PAULO, SP)
+   Stores: 40 | Revenue: R$2,830,948.61 | Orders: 25,346
+
+3. COFFEE SHOPPING (SÃO PAULO, SP)
+   Stores: 67 | Revenue: R$2,776,054.91 | Orders: 21,887
+
+STRATEGIC INSIGHTS
+--------------------------------------------------------------------------------
+• High-potential hubs identified (many stores, underperforming revenue)
+• Consolidation opportunities for low-performing hubs
+• Top performers can serve as operational benchmarks
+
+================================================================================

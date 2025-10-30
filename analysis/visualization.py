@@ -64,7 +64,7 @@ def channel_profitability_heatmap(profitability_df):
 
     # Save the heatmap to file for documentation and reproducibility
     plt.savefig(
-        "../notebook/task-a/channel_profitability_heatmap.png",
+        "../results/task-a/plots/channel_profitability_heatmap.png",
         dpi=300,
         bbox_inches="tight",
     )
@@ -108,7 +108,7 @@ def plot_delivery_time_by_driver_modal(delivery_time_df):
     plt.tight_layout()
     # Save boxplot to file
     plt.savefig(
-        "../notebook/task-b/delivery_time_distribution_boxplot.png",
+        "../results/task-b/plots/delivery_time_distribution_boxplot.png",
         dpi=300,
         bbox_inches="tight",
     )
@@ -148,7 +148,7 @@ def plot_delivery_time_by_driver_modal(delivery_time_df):
     plt.tight_layout()
     # Save violin plot to file
     plt.savefig(
-        "../notebook/task-b/delivery_time_distribution_violin.png",
+        "../results/task-b/plots/delivery_time_distribution_violin.png",
         dpi=300,
         bbox_inches="tight",
     )
@@ -200,7 +200,7 @@ def plot_average_delivery_time_by_driver_modal(avg_delivery_time_df):
 
     # Step 5: Save the bar chart to file for documentation and reproducibility
     plt.savefig(
-        "../notebook/task-b/average_delivery_time_by_driver_modal.png",
+        "../results/task-b/plots/average_delivery_time_by_driver_modal.png",
         dpi=300,
         bbox_inches="tight",
     )
